@@ -1,0 +1,26 @@
+{
+  "name": "chainguard",
+  "version": "1.0.0",
+  "description": "ChainGuard - Supply Chain Risk & Dependency Explorer",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "build:api": "npm run build -w apps/api",
+    "build:web": "npm run build -w apps/web",
+    "build": "npm run build:api && npm run build:web",
+    "check-db": "npm run check-db -w apps/api",
+    "seed": "npm run seed -w apps/api",
+    "verify-db": "npm run verify-db -w apps/api",
+    "verify-api": "npm run verify-api -w apps/api",
+    "test": "npm run test -w apps/api && npm run test -w apps/web",
+    "lint": "npm run lint -w apps/web"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
