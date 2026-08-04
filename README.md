@@ -1,83 +1,84 @@
-# ChainGuard - Supply Chain Risk & Dependency Explorer
+# ChainGuard - Supply Chain Intelligence
 
-ChainGuard is an advanced supply-chain mapping and risk analysis tool powered by CognoDB (a Neo4j-compatible graph database) and React. It helps procurement and operations teams visualize hidden, multi-tier dependencies, identify single points of failure, and analyze the "blast radius" of active risk events.
+ChainGuard is a comprehensive supply-chain risk and operational intelligence dashboard powered by Neo4j/CognoDB. It enables organizations to visualize dependencies, track single points of failure, and model the indirect cascading impact of global risk events on their product portfolio.
 
-## Why a Graph Database?
+## Phase 6 Final Submission Deliverables
 
-Modern supply chains are highly interconnected networks, not simple hierarchical tables. We chose CognoDB (Graph Database) for this problem because:
-- **Connected Data**: Products depend on components, which are supplied by vendors, operating from facilities, located in countries subject to distinct risks. Graph databases model this reality naturally.
-- **Variable-Depth Traversal**: Queries like "Find all upstream dependencies for this product up to 4 hops away" are computationally expensive and awkward with relational recursive CTEs (SQL) but are native, highly optimized graph traversal queries (Cypher).
-- **Hidden Dependencies**: Discovering that two completely different product lines secretly share a Tier 3 supplier in a high-risk region is a trivial pattern-matching query (`(p1)-[*]->(s)<-[*]-(p2)`) in a graph.
-- **Path Reconstruction**: Calculating the shortest path of failure from a specific risk event to a specific revenue-generating product is a core capability of graph algorithms.
+- **Live Demo Application (Frontend):** `[INSERT_FRONTEND_URL_HERE]`
+- **Live Backend API Health:** `[INSERT_BACKEND_URL_HERE]/api/health`
+- **GitHub Repository:** `[INSERT_GITHUB_REPO_URL_HERE]`
+- **Screen Recording Walkthrough:** `[INSERT_VIDEO_URL_HERE]`
 
-## Data Model (Mermaid)
+---
 
-```mermaid
-erDiagram
-    Product ||--|{ Component : REQUIRES
-    Component }|--|{ Supplier : SUPPLIES
-    Supplier ||--|| Facility : OPERATES
-    Facility ||--|| Country : LOCATED_IN
-    Supplier ||--|| Country : HEADQUARTERED_IN
-    RiskEvent }|--|{ Country : AFFECTS
-    RiskEvent }|--|{ Facility : AFFECTS
-    RiskEvent }|--|{ Supplier : AFFECTS
-    Supplier }|--o{ Supplier : ALTERNATIVE_TO
-    Supplier }|--o{ Supplier : DEPENDS_ON
+## 🏗 Architecture Overview
+
+ChainGuard is built as a modern full-stack monorepo consisting of:
+
+1. **Frontend (`apps/web`)**: A responsive React (Vite) application styled with Tailwind CSS v4. It features complex state management using React Query, real-time routing with React Router, and advanced graph visualizations using React Flow and Cytoscape.
+2. **Backend (`apps/api`)**: A Node.js + Express REST API designed for high performance. It handles direct queries to the graph database using the official Neo4j driver, ensuring data is formatted optimally for the frontend.
+3. **Database (`CognoDB Cloud`)**: A graph database holding the entire supply-chain topology, utilizing nodes for `Supplier`, `Facility`, `Component`, `Product`, and `Risk`, along with their complex inter-relationships (e.g., `SUPPLIES`, `AFFECTS`, `DEPENDS_ON`).
+
+## 🚀 Setup Instructions
+
+If you wish to run the application locally, follow these steps:
+
+### Prerequisites
+- Node.js (v18+)
+- npm (v9+)
+- A Neo4j or CognoDB database instance
+
+### 1. Installation
+Clone the repository and install all workspace dependencies:
+```bash
+git clone [INSERT_GITHUB_REPO_URL_HERE] chainguard
+cd chainguard
+npm install
 ```
 
-## Core Cypher Queries
-- **Product Neighborhood (`/products/:id/network`)**: Expands up to `N` hops from a target product (`MATCH path = (p:Product)-[*1..4]-(node)`) to map its dependency tree.
-- **Risk Impact (`/risks/:id/impact`)**: Matches an active risk event and traverses `AFFECTS` relationships downstream to find all impacted components and ultimately affected products (`MATCH (r:RiskEvent)-[:AFFECTS]->(node)-[*]->(p:Product)`).
-- **Shared Dependencies (`/products/compare`)**: Finds intersections where paths from two distinct products converge on the same entity (`MATCH (p1)-[*1..4]->(shared)<-[*1..4]-(p2)`).
-- **Single Points of Failure (`/dashboard/single-points-of-failure`)**: Identifies components that have exactly one `SUPPLIES` relationship, highlighting critical bottlenecks.
-
-## Limitations
-- **Demonstration Scale**: The seeded data is representative but not at the scale of a global enterprise (tens of thousands of nodes).
-- **Illustrative Scoring**: Risk and reliability scores are statically seeded for demonstration purposes, not fed by live intelligence streams.
-- **Free-Tier Limits**: Hosted on a free-tier CognoDB instance which may experience cold starts or connection timeouts under heavy concurrent load.
-
-## Local Setup
-
-1. **Database Requirements**: Create a free instance on CognoDB Cloud (or use a local Neo4j Docker container).
-2. **Environment Configuration**:
-   Create `apps/api/.env`:
-   ```env
-   NEO4J_URI=bolt+s://<your-instance>.databases.cognodb.cloud
-   NEO4J_USERNAME=cognodb
-   NEO4J_PASSWORD=<your-password>
-   PORT=4000
-   WEB_ORIGIN=http://localhost:5173
-   ```
-   Create `apps/web/.env`:
-   ```env
-   VITE_API_BASE_URL=http://localhost:4000/api
-   ```
-3. **Installation & Seeding**:
-   ```bash
-   npm install
-   npm run seed
-   npm run verify-db
-   ```
-4. **Running Locally**:
-   ```bash
-   npm run dev
-   ```
-
-## Live Links
-- **GitHub Repository**: [Your Repo Link Here]
-- **Frontend Demo**: [Your Vercel Link Here]
-- **Backend API**: [Your Render/Heroku Link Here]
-- **Health Endpoint**: [Your API Link]/health
-- **Screen Recording**: [Your Video Link Here]
-
-## Architecture
-```text
-React/Vite frontend (React Flow, Tailwind, TanStack Query)
-        |
-Express/TypeScript API (Zod validation, centralized error handling)
-        |
-Official Neo4j JavaScript Driver
-        |
-CognoDB Cloud (Graph Database)
+### 2. Database Configuration
+Create an `.env` file in the `apps/api` directory:
+```bash
+COGNODB_URI=bolt+s://<your-db-url>
+COGNODB_USERNAME=cognodb
+COGNODB_PASSWORD=<your-db-password>
+PORT=4000
+WEB_ORIGIN=http://localhost:5173
 ```
+
+### 3. Seeding the Database
+To populate the database with the initial graph data, run the seed script:
+```bash
+npm run seed -w apps/api
+```
+
+### 4. Running the Application
+Start both the backend API and the frontend development server concurrently:
+```bash
+# Start backend
+npm run dev -w apps/api
+
+# In a new terminal, start frontend
+npm run dev -w apps/web
+```
+The application will be available at `http://localhost:5173`.
+
+---
+
+## 📸 Screenshots
+
+### Operational Dashboard
+Displays real-time aggregated metrics and top supply-chain risks.
+![Dashboard](dashboard_home_1785841604641.png)
+
+### Network Explorer
+Interactive dependency graph mapping the entire global topology.
+![Network Explorer](network_explorer_1785841640527.png)
+
+### Risk Impact Analysis
+Calculates the exact downstream impact of isolated disruption events.
+![Risk Impact](risk_impact_1785841675725.png)
+
+### Critical Dependencies
+Highlights single points of failure (sole-sourced components).
+![Critical Dependencies](critical_dependencies_1785841732209.png)

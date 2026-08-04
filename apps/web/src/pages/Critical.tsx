@@ -2,8 +2,10 @@ import { useHighImpactSuppliers, useSinglePointsOfFailure } from '../hooks/queri
 import { LoadingState } from '../components/common/LoadingState';
 import { ErrorState } from '../components/common/ErrorState';
 import { StatusBadge } from '../components/common/StatusBadge';
-import { Building2, Cpu, AlertOctagon } from 'lucide-react';
+import { Building2, Cpu, AlertOctagon, Package, DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { formatCurrency } from '../utils/format';
+import { Table } from '../components/common/Table';
 
 export function Critical() {
   const { 
@@ -19,59 +21,86 @@ export function Critical() {
   } = useSinglePointsOfFailure();
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-5xl">
+    <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
       
-      <div className="bg-danger/10 p-6 rounded-2xl border border-danger/20 flex gap-4">
-        <div className="p-3 bg-danger/20 rounded-xl shrink-0 h-fit">
-          <AlertOctagon className="text-danger w-8 h-8" />
+      {/* Page Header */}
+      <div className="bg-danger-light/30 p-8 rounded-2xl border border-danger/20 flex flex-col md:flex-row gap-6 items-start md:items-center relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-4 opacity-5">
+          <AlertOctagon className="w-48 h-48" />
         </div>
-        <div>
-          <h2 className="text-2xl font-bold mb-2 text-danger">Critical Dependencies</h2>
-          <p className="text-foreground/70 max-w-3xl">
-            Review vulnerabilities in the supply network. Address single points of failure 
-            and monitor suppliers whose disruption would cause cascading product failures.
+        <div className="p-4 bg-danger/10 rounded-xl shrink-0 z-10">
+          <AlertOctagon className="text-danger w-10 h-10" />
+        </div>
+        <div className="z-10">
+          <h2 className="text-2xl font-bold mb-2 text-danger flex items-center gap-2">
+            Critical Dependencies
+          </h2>
+          <p className="text-muted text-lg max-w-3xl leading-relaxed">
+            Review critical vulnerabilities in your supply network. Address single points of failure (sole-sourced components) 
+            and monitor suppliers whose disruption would cause severe cascading product failures.
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         
         {/* Single Points of Failure */}
         <div className="space-y-4">
-          <h3 className="text-xl font-bold flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-warning" />
-            Single Source Components
-          </h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <Cpu className="w-5 h-5 text-warning" />
+              Single-Source Components
+            </h3>
+            <span className="bg-warning-light text-warning text-xs font-bold px-2.5 py-1 rounded-full border border-warning/20">
+              {singlePoints?.length || 0} Found
+            </span>
+          </div>
           
-          <div className="bg-card rounded-xl border border-card-hover overflow-hidden">
+          <div className="bg-card rounded-xl border border-card-border shadow-sm overflow-hidden min-h-[400px]">
             {isLoadingSinglePoints ? (
-               <LoadingState message="Analyzing..." />
+               <div className="p-12"><LoadingState message="Analyzing components..." /></div>
             ) : isSinglePointsError ? (
-               <ErrorState message="Failed to load single points of failure." />
-            ) : singlePoints?.length === 0 ? (
-               <div className="p-6 text-center text-foreground/50">No single points of failure detected.</div>
+               <div className="p-6"><ErrorState message="Failed to load single points of failure." /></div>
+            ) : !singlePoints || singlePoints.length === 0 ? (
+               <div className="p-12 text-center text-muted">No single points of failure detected.</div>
             ) : (
-              <div className="divide-y divide-card-hover">
-                {singlePoints?.map((item) => (
-                  <div key={item.componentId} className="p-5">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-lg">{item.componentName}</h4>
-                      <StatusBadge status="CRITICAL" />
-                    </div>
-                    <div className="text-sm text-foreground/70 mb-4">
-                      Sole Supplier: <span className="font-semibold text-primary">{item.supplierName}</span>
-                    </div>
-                    <div className="bg-background rounded-lg p-3 border border-card-hover">
-                      <div className="text-xs text-foreground/50 mb-1">Impacts {item.dependentProducts} Products</div>
-                      <div className="font-medium text-sm text-danger mb-2">
-                        ${(item.aggregateRevenueImpact / 1000000).toFixed(1)}M Revenue at Risk
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {item.productNames.map(name => (
-                          <span key={name} className="px-2 py-1 bg-card rounded text-xs border border-card-hover">
-                            {name}
+              <div className="divide-y divide-card-border">
+                {singlePoints.map((item) => (
+                  <div key={item.componentId} className="p-6 hover:bg-muted-light/30 transition-colors">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-bold text-lg text-foreground">{item.componentName}</h4>
+                        <div className="text-sm text-muted mt-1 flex items-center gap-1">
+                          Sole Supplier: 
+                          <span className="font-semibold text-primary flex items-center gap-1">
+                            <Building2 className="w-3 h-3" /> {item.supplierName}
                           </span>
-                        ))}
+                        </div>
+                      </div>
+                      <StatusBadge status="Single Source" />
+                    </div>
+                    
+                    <div className="bg-background rounded-xl p-4 border border-card-border grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-wider text-muted mb-1 flex items-center gap-1">
+                          <Package className="w-3 h-3" /> Dependent Products
+                        </div>
+                        <div className="text-lg font-bold text-foreground mb-2">{item.productNames.length}</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {item.productNames.map(name => (
+                            <span key={name} className="px-2 py-1 bg-muted-light rounded-md text-[10px] font-medium text-foreground">
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-wider text-muted mb-1 flex items-center gap-1">
+                          <DollarSign className="w-3 h-3" /> Revenue at Risk
+                        </div>
+                        <div className="text-lg font-bold text-danger">
+                          {formatCurrency(item.aggregateRevenueImpact)}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -83,49 +112,68 @@ export function Critical() {
 
         {/* High Impact Suppliers */}
         <div className="space-y-4">
-          <h3 className="text-xl font-bold flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-primary" />
-            High Impact Suppliers
-          </h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-primary" />
+              High-Impact Suppliers
+            </h3>
+            <span className="bg-primary-light/50 text-primary text-xs font-bold px-2.5 py-1 rounded-full border border-primary/20">
+              Top {highImpact?.length || 0}
+            </span>
+          </div>
           
-          <div className="bg-card rounded-xl border border-card-hover overflow-hidden">
+          <div className="bg-card rounded-xl border border-card-border shadow-sm overflow-hidden min-h-[400px] flex flex-col">
              {isLoadingHighImpact ? (
-               <LoadingState message="Analyzing..." />
+               <div className="p-12 flex-1"><LoadingState message="Ranking suppliers..." /></div>
             ) : isHighImpactError ? (
-               <ErrorState message="Failed to load high impact suppliers." />
-            ) : highImpact?.length === 0 ? (
-               <div className="p-6 text-center text-foreground/50">No data available.</div>
+               <div className="p-6 flex-1"><ErrorState message="Failed to load high impact suppliers." /></div>
+            ) : !highImpact || highImpact.length === 0 ? (
+               <div className="p-12 text-center text-muted flex-1">No data available.</div>
             ) : (
-              <div className="divide-y divide-card-hover">
-                {highImpact?.map((supplier, idx) => (
-                  <div key={supplier.id} className="p-5">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-foreground/40 text-sm">#{idx + 1}</span>
-                        <Link to={`/suppliers/${supplier.id}`} className="hover:text-primary transition-colors">
-                          {supplier.name}
-                        </Link>
-                      </h4>
-                      <div className="text-right">
-                        <div className="text-xs text-foreground/50 mb-1">Risk Score</div>
-                        <span className={`font-bold ${supplier.riskScore > 30 ? 'text-danger' : supplier.riskScore > 15 ? 'text-warning' : 'text-success'}`}>
-                          {supplier.riskScore}/100
+              <div className="flex-1 overflow-y-auto">
+                <Table
+                  data={highImpact || []}
+                  keyExtractor={(s) => s.id}
+                  columns={[
+                    {
+                      header: "Rank & Supplier",
+                      accessor: (s, idx) => (
+                        <div className="flex items-center gap-3">
+                          <span className="text-muted font-bold w-4">{idx + 1}.</span>
+                          <Link to={`/suppliers/${s.id}`} className="font-semibold text-foreground hover:text-primary transition-colors">
+                            {s.name}
+                          </Link>
+                        </div>
+                      )
+                    },
+                    {
+                      header: "Affected Products",
+                      align: "center",
+                      accessor: (s) => (
+                        <span className="font-medium text-foreground bg-muted-light px-2 py-1 rounded-md">
+                          {s.affectedProducts}
                         </span>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4 mt-4 bg-background p-3 rounded-lg border border-card-hover">
-                      <div>
-                        <div className="text-xs text-foreground/50">Affected Products</div>
-                        <div className="font-medium">{supplier.affectedProducts}</div>
-                      </div>
-                      <div>
-                         <div className="text-xs text-foreground/50">Revenue Exposure</div>
-                        <div className="font-medium text-danger">${(supplier.totalRevenueExposure / 1000000).toFixed(1)}M</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                      )
+                    },
+                    {
+                      header: "Risk Score",
+                      align: "center",
+                      accessor: (s) => (
+                        <div className="flex flex-col items-center">
+                          <span className={`font-bold text-lg ${s.riskScore > 75 ? 'text-danger' : s.riskScore > 50 ? 'text-warning' : 'text-success'}`}>
+                            {s.riskScore}
+                          </span>
+                          <div className="w-16 h-1.5 bg-muted-light rounded-full overflow-hidden mt-1">
+                            <div 
+                              className={`h-full ${s.riskScore > 75 ? 'bg-danger' : s.riskScore > 50 ? 'bg-warning' : 'bg-success'}`}
+                              style={{ width: `${s.riskScore}%` }}
+                            />
+                          </div>
+                        </div>
+                      )
+                    }
+                  ]}
+                />
               </div>
             )}
           </div>

@@ -7,23 +7,46 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#0f172a',
-        foreground: '#f8fafc',
+        background: '#f8fafc',
+        foreground: '#1e293b',
         primary: {
-          DEFAULT: '#3b82f6',
-          hover: '#2563eb',
+          DEFAULT: '#4f46e5',
+          hover: '#4338ca',
+          light: '#e0e7ff',
         },
         card: {
-          DEFAULT: '#1e293b',
-          hover: '#334155',
+          DEFAULT: '#ffffff',
+          hover: '#f1f5f9',
+          border: '#e2e8f0',
         },
-        danger: '#ef4444',
-        warning: '#f59e0b',
-        success: '#10b981',
+        muted: {
+          DEFAULT: '#64748b',
+          light: '#f1f5f9',
+        },
+        danger: {
+          DEFAULT: '#dc2626',
+          light: '#fee2e2',
+        },
+        warning: {
+          DEFAULT: '#d97706',
+          light: '#fef3c7',
+        },
+        success: {
+          DEFAULT: '#059669',
+          light: '#d1fae5',
+        },
+        info: {
+          DEFAULT: '#2563eb',
+          light: '#dbeafe',
+        }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
+      boxShadow: {
+        'card': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        'elevated': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+      }
     },
   },
   plugins: [],

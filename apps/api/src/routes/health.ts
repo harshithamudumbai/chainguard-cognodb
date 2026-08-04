@@ -8,15 +8,23 @@ router.get("/", async (req: Request, res: Response) => {
 
   if (isDbConnected) {
     res.status(200).json({
-      status: "ok",
-      database: "connected",
-      timestamp: new Date().toISOString(),
+      data: {
+        status: "ok",
+        database: "connected",
+        timestamp: new Date().toISOString(),
+      }
     });
   } else {
     res.status(503).json({
-      status: "degraded",
-      database: "unavailable",
-      timestamp: new Date().toISOString(),
+      data: {
+        status: "degraded",
+        database: "unavailable",
+        timestamp: new Date().toISOString(),
+      },
+      error: {
+        code: "DATABASE_UNAVAILABLE",
+        message: "Database connection failed"
+      }
     });
   }
 });
