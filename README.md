@@ -4,9 +4,9 @@ ChainGuard is a comprehensive supply-chain risk and operational intelligence das
 
 ## Phase 6 Final Submission Deliverables
 
-- **Live Demo Application (Frontend):** `[INSERT_FRONTEND_URL_HERE]`
-- **Live Backend API Health:** `[INSERT_BACKEND_URL_HERE]/api/health`
-- **GitHub Repository:** `[INSERT_GITHUB_REPO_URL_HERE]`
+- **Live Demo Application (Frontend):** https://chainguard-cognodb-web.vercel.app
+- **Live Backend API Health:** https://chainguard-cognodb.onrender.com/api/health
+- **GitHub Repository:** https://github.com/harshithamudumbai/chainguard-cognodb
 - **Screen Recording Walkthrough:** `[INSERT_VIDEO_URL_HERE]`
 
 ---
