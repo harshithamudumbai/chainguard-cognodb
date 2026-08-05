@@ -65,20 +65,14 @@ The application will be available at `http://localhost:5173`.
 
 ---
 
-## 📸 Screenshots
-
 ### Operational Dashboard
 Displays real-time aggregated metrics and top supply-chain risks.
-![Dashboard](dashboard_home_1785841604641.png)
 
 ### Network Explorer
 Interactive dependency graph mapping the entire global topology.
-![Network Explorer](network_explorer_1785841640527.png)
 
 ### Risk Impact Analysis
 Calculates the exact downstream impact of isolated disruption events.
-![Risk Impact](risk_impact_1785841675725.png)
 
 ### Critical Dependencies
 Highlights single points of failure (sole-sourced components).
-![Critical Dependencies](critical_dependencies_1785841732209.png)
